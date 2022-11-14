@@ -3,14 +3,11 @@
 #include<cmath>
 
 typedef unsigned long long int ull;
+typedef long double ld;
 using namespace std;
 
 
-
-
-//implementing n^k, using quiz1 question1, karatsuba basically
-
-
+//polynomial multiplication
 ull*  mul(ull* arr1, ull* arr2, ull size1, ull size2)
 {
     ull*  arr{new ull[size1+size2-1] {0}};
@@ -30,6 +27,8 @@ ull*  mul(ull* arr1, ull* arr2, ull size1, ull size2)
     return arr;
 }
 
+
+// modulo n function 
 ull*  modulon(ull* arr,ull n, ull size)
 {
     // if(arr.size()>=r){
@@ -48,6 +47,8 @@ ull*  modulon(ull* arr,ull n, ull size)
 
 }
 
+
+// modulo r function 
 ull*  modulor(ull* arr, ull r,ull size)
 {
     if(size>=r)
@@ -60,35 +61,8 @@ ull*  modulor(ull* arr, ull r,ull size)
     return arr;
 }
 
-ull*  step5_func(ull* arr, ull n,ull r,ull power)
-{
-    if(n==1)
-    {
-        arr=modulon(arr,power,2);
-        return arr;
-    }
-    else
-    {
-        if(n%2==0)
-        {
-            ull*  arr1=step5_func(arr,n/2,r,power);
-            ull* arr2=mul(arr1,arr1,n/2+1,n/2+1);
-            arr2=modulon(arr2,power,n+1);
-            return arr2;
-        }
-        else
-        {
-            ull* arr1=step5_func(arr,n/2,r,power);
-            ull* arr2=mul(arr1,arr1,n/2+1,n/2+1);
-            ull* arr3=mul(arr2,arr,n,2);
-            arr3=modulon(arr3,power,n+1);
-            return arr3;
-        }
-    }
-}
 
-
-
+//log function
 ull Logn(ull n,ull r)
 {
     return (n > r - 1) ? 1 +
@@ -96,18 +70,37 @@ ull Logn(ull n,ull r)
 }
  
 
-// bool isPower(int x, int y)
-// {
-//     // logarithm function to calculate value
-//     int res1 = log(y) / log(x);
-//     double res2 = log(y) /log(x); // Note : this is double
- 
-//     // compare to the result1 or result2 both are equal
-//     return (res1 == res2);
-// }
+
 // // Driver code
 
-//step 2:
+// step 1
+bool step1 (ull n){
+
+    ull b = Logn(n,2);
+    double a;
+
+    for(int i=2; i<=b; i++){
+
+        ld k = 1.00/i;
+        //cout<<"K-> "<<k<<endl;
+        a = (ld)powl((ld)n,(ld)k);
+
+        //cout<<"a "<<a<<endl;
+        //cout<<typeid(a).name()<<endl;
+        
+        ull f=floor((ld)a);
+        ull c=ceil((ld)a);
+
+        // cout<<f<<endl;
+        // cout<<c<<endl;
+        //ull x = ull(a);
+        //cout<<x<<endl;
+        if(c == f) return false;
+    }
+    return true;
+}
+
+//step 2
 
 int step2(ull n, ull ln)
 {
@@ -115,7 +108,8 @@ int step2(ull n, ull ln)
     int r;
     ull k;
     bool nextR=true;
-    for(r=2; nextR ;r++)
+    ull maxR = pow(ln,5);
+    for(r=2; nextR && r < maxR ;r++)
     {
         nextR=false;
         for(k=1; (!nextR) && k<=maxk;k++)
@@ -152,7 +146,6 @@ bool step3(int n, int r)
 
 
 //step 5
-
 int phi(int n)
 {
     float result = n;
@@ -174,41 +167,80 @@ int phi(int n)
 }
 
 
+ull*  step5_func(ull* arr, ull n,ull r,ull power)
+{
+    if(n==1)
+    {
+        arr=modulon(arr,power,2);
+        return arr;
+    }
+    else
+    {
+        if(n%2==0)
+        {
+            ull*  arr1=step5_func(arr,n/2,r,power);
+            ull* arr2=mul(arr1,arr1,n/2+1,n/2+1);
+            arr2=modulon(arr2,power,n+1);
+            return arr2;
+        }
+        else
+        {
+            ull* arr1=step5_func(arr,n/2,r,power);
+            ull* arr2=mul(arr1,arr1,n/2+1,n/2+1);
+            ull* arr3=mul(arr2,arr,n,2);
+            arr3=modulon(arr3,power,n+1);
+            return arr3;
+        }
+    }
+}
+
+
+
 int main()
 {
-    
     ull n;
     cin>>n;
 
+    // base cases
+    if((n!=2 && n%2==0) || (n!=5 && n%5==0)){
+        cout<<"composite"<<endl;
+        return 0;
+    }
+
+    // step 1
+    bool answer1 = step1(n);
+    if(answer1 == false){
+        cout<<"composite"<<endl;
+        return 0;
+    }
+    
+    // step 2
     ull ln= Logn(n,2);
-
     ull r=step2(n,ln);
+    //cout<<n<<" -> "<<r<<endl;
 
+
+    // step 3
     bool answer3=step3(n,r);
-
-    cout<<n<<" -> "<<r<<endl;
-
     if(answer3==false)
     {
         cout<<"composite"<<endl;
         return 0;
     }
 
-    //step4:
+    //step 4
     if(n<=r)
     {
         cout<<"prime"<<endl;
         return 0;
     }
 
-    ull phi_val=phi(r);
 
+    // step 5
+    ull phi_val=phi(r);
     ull answer5_1=sqrt(phi_val)*ln;
 
-    ull answer5_2=sqrt(r)*log(n);
-
     ull a;
-    
     
     for(a=1;a<answer5_1;a++)
     {
@@ -228,7 +260,6 @@ int main()
         step5_rhs=modulor(step5_rhs,r,n+1);
 
        
-
         for(int i=0;i<r;i++)
         {
             if((step5_lhs[i]-step5_rhs[i])%n!=0)
@@ -238,7 +269,6 @@ int main()
             }
         }
        
-
     }
 
     cout<<"prime"<<endl; 
