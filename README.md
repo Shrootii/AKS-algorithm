@@ -1,1 +1,1 @@
-# AKS primality test in algoruthm analysis
+# AKS primality test in algorithm analysis
